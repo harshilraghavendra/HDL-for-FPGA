@@ -1,0 +1,42 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+entity FSM is
+port (In1: in std_logic;
+   RST: in std_logic; 
+   CLK: in std_logic;
+   Out1 : inout std_logic);
+end FSM;
+architecture fsmarch of FSM is
+type state_type is (s0,s1);
+signal st: state_type;
+function pedge(signal s: std_logic)
+return boolean is 
+begin
+return s'event and s='1';
+end pedge;
+begin
+process(CLK,RST)
+begin
+if(RST='1') then 
+st<=s0;
+elsif(pedge(CLK)) then
+case st is
+when s0=>
+if(In1='1') then
+st<=s1;
+else
+st<=s0;
+end if;
+when s1=>
+if(In1='0') then
+st<=s0;
+else
+st<=s1;
+end if;
+end case;
+end if;
+end process;
+Out1<='1' when (st=s1 and In1='0') else
+      '0';
+end fsmarch;

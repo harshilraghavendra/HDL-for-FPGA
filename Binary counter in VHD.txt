@@ -1,0 +1,40 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+use IEEE.std_logic_unsigned.all;
+
+entity AAC2M2P1 is port (                 	
+   CP: 	in std_logic; 	-- clock
+   SR:  in std_logic;  -- Active low, synchronous reset
+   P:    in std_logic_vector(3 downto 0);  -- Parallel input
+   PE:   in std_logic;  -- Parallel Enable (Load)
+   CEP: in std_logic;  -- Count enable parallel input
+   CET:  in std_logic; -- Count enable trickle input
+   Q:   out std_logic_vector(3 downto 0);            			
+    TC:  out std_logic  -- Terminal Count
+);            		
+end AAC2M2P1;
+architecture count of AAC2M2P1 is
+function posedge(signal s: std_logic)
+return boolean is
+begin
+return s'event and s='1';
+end posedge;
+begin
+process(CP,SR,PE,CEP,CET)
+begin
+if(SR='0') then
+Q<="0000";
+elsif posedge(CP) then
+if PE='0' then
+Q<=P;
+elsif CET='1' and CEP='1' then
+Q<=Q+1;
+end if;
+if(CET='1' and Q="1111" and CEP='1') then
+TC<='1';
+else TC<='0';
+end if;
+end if;
+end process;
+end count; 
